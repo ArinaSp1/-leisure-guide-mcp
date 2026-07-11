@@ -1,0 +1,12 @@
+[
+  {
+    "name": "BBC World",
+    "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "enabled": true
+  },
+  {
+    "name": "TechCrunch",
+    "url": "https://techcrunch.com/feed/",
+    "enabled": true
+  }
+]

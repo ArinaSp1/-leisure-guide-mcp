@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LEISURE GUIDE // daily context console</title>
+  <style>
+    :root { --bg:#0b0e0c; --panel:#111612; --line:#29342c; --text:#d9e3dc; --muted:#7f9185; --green:#71f79f; --amber:#f0c674; --red:#ff7b72; font-family:"Cascadia Code","SFMono-Regular",Consolas,monospace; color:var(--text); background:var(--bg); }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); }
+    button,input,select { font:inherit; }
+    button { cursor:pointer; }
+    a { color:var(--green); }
+    .shell { max-width:1280px; margin:auto; padding:24px; }
+    .topline { border:1px solid var(--line); background:#0e130f; padding:12px 14px; display:flex; justify-content:space-between; gap:16px; align-items:center; }
+    .brand { color:var(--green); font-weight:700; letter-spacing:.08em; }
+    .muted { color:var(--muted); }
+    .ok { color:var(--green); }
+    .warn { color:var(--amber); }
+    .grid { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:12px; margin-top:12px; }
+    .panel { border:1px solid var(--line); background:var(--panel); padding:16px; min-width:0; }
+    .span-4 { grid-column:span 4; } .span-5 { grid-column:span 5; } .span-7 { grid-column:span 7; } .span-8 { grid-column:span 8; } .span-12 { grid-column:span 12; }
+    .label { color:var(--green); text-transform:uppercase; letter-spacing:.12em; font-size:.72rem; margin-bottom:12px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:1.15rem; margin-bottom:6px; }
+    h2 { font-size:1rem; margin-bottom:12px; }
+    .weather-value { font-size:2.5rem; color:var(--green); }
+    .source { display:inline-block; color:var(--muted); font-size:.72rem; margin-top:10px; }
+    .list { list-style:none; margin:0; padding:0; }
+    .list li { padding:7px 0; border-top:1px dotted var(--line); }
+    .check-row { display:flex; gap:8px; align-items:center; }
+    .check-item { display:flex; flex:1; gap:10px; align-items:center; color:var(--text); font-size:.9rem; cursor:pointer; }
+    .check-item input { width:auto; margin:0; accent-color:var(--green); }
+    .check-item:has(input:checked) span { color:var(--muted); text-decoration:line-through; }
+    .remove-item { width:auto; margin:0; padding:2px 6px; color:var(--red); background:transparent; border:0; }
+    .add-item { display:flex; gap:7px; margin-top:10px; }
+    .add-item input { margin:0; }
+    .controls { display:grid; grid-template-columns:1.4fr .7fr .7fr 1fr auto; gap:8px; align-items:end; }
+    label { display:block; color:var(--muted); font-size:.72rem; }
+    input,select { width:100%; margin-top:5px; padding:9px 10px; color:var(--text); background:#090c0a; border:1px solid var(--line); outline:none; }
+    input:focus,select:focus { border-color:var(--green); }
+    .btn { padding:10px 13px; border:1px solid var(--green); color:var(--green); background:transparent; }
+    .btn:hover { background:var(--green); color:#08100b; }
+    .btn.secondary { border-color:var(--line); color:var(--muted); }
+    .cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:14px; }
+    .card { border:1px solid var(--line); padding:12px; background:#0d120e; }
+    .card-head { display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-size:.72rem; margin-bottom:9px; }
+    .card h3 { font-size:.94rem; margin-bottom:7px; }
+    .card p { color:#a8b6ac; font-size:.82rem; line-height:1.45; }
+    .why { color:var(--muted); font-size:.72rem; border-top:1px dotted var(--line); padding-top:8px; }
+    .action { display:inline-block; margin-top:9px; text-decoration:none; border-bottom:1px solid var(--green); }
+    .connector-row { display:grid; grid-template-columns:170px 110px 1fr; gap:12px; padding:7px 0; border-top:1px dotted var(--line); font-size:.78rem; }
+    details { margin-top:10px; }
+    summary { cursor:pointer; color:var(--muted); }
+    .inline { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .inline label { display:flex; gap:7px; align-items:center; }
+    .inline input[type=checkbox] { width:auto; margin:0; }
+    .terminal-output { background:#080b09; border:1px solid var(--line); padding:14px; margin-top:12px; min-height:90px; white-space:normal; }
+    .scorebar { height:5px; background:#263028; margin:10px 0; }
+    .scorebar span { display:block; height:100%; background:var(--green); }
+    .evidence-line { display:grid; grid-template-columns:150px 1fr 55px; gap:12px; padding:8px 0; border-top:1px dotted var(--line); font-size:.78rem; }
+    .timeline-head,.event { display:grid; grid-template-columns:145px 110px 120px 1fr; gap:12px; padding:9px 0; }
+    .timeline-head { color:var(--muted); font-size:.7rem; border-bottom:1px solid var(--line); }
+    .event { border-bottom:1px dotted var(--line); font-size:.78rem; }
+    .tag { color:var(--amber); }
+    .simulated { color:var(--amber); }
+    .real { color:var(--green); }
+    .dev { border-color:#5a4520; }
+    .empty { color:var(--muted); padding:14px 0; }
+    @media(max-width:850px){ .span-4,.span-5,.span-7,.span-8,.span-12{grid-column:span 12}.controls{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr}.connector-row,.timeline-head,.event{grid-template-columns:1fr}.timeline-head{display:none}.evidence-line{grid-template-columns:1fr 45px}.evidence-line span:first-child{grid-column:1/-1} }
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="topline">
+    <div><span class="brand">LEISURE://GUIDE</span> <span class="muted">v0.6</span></div>
+    <div><span class="ok">● LOCAL</span> <span class="muted">// evidence is real unless DEMO is enabled</span></div>
+  </header>
+
+  <section class="grid">
+    <article class="panel span-8" id="weather"><div class="label">context.weather</div><div class="muted">loading Open-Meteo...</div></article>
+    <article class="panel span-4">
+      <div class="label">profile.departure_items</div>
+      <h2>Today's essentials</h2>
+      <ul class="list" id="items"></ul>
+      <form id="add-item-form" class="add-item"><input id="new-item" maxlength="40" placeholder="add essential" /><button class="btn" title="Add item">+</button></form>
+      <div class="source" id="items-source"></div>
+      <div class="source" id="items-progress"></div>
+    </article>
+
+    <article class="panel span-12">
+      <div class="label">events.search</div>
+      <h2>Find events by keyword and city</h2>
+      <p class="muted">Credential-free public-feed discovery, with direct external searches for Luma and Eventbrite.</p>
+      <form id="event-form" class="controls" style="grid-template-columns:1fr 1fr auto">
+        <label>KEYWORD<input id="event-keyword" value="technology" placeholder="jazz, pottery, AI..." /></label>
+        <label>CITY<input id="event-city" value="Berlin" /></label>
+        <button class="btn">FIND EVENTS</button>
+      </form>
+      <div id="event-results" class="cards"></div>
+    </article>
+
+    <article class="panel span-12">
+      <div class="label">recommendations.query</div>
+      <h2>Ask live providers what fits your constraints</h2>
+      <form id="suggest-form" class="controls">
+        <label>AREA<input id="area" value="Berlin" /></label>
+        <label>DURATION<input id="minutes" type="number" min="5" max="720" value="90" /></label>
+        <label>BUDGET EUR<input id="budget" type="number" min="0" placeholder="any" /></label>
+        <label>CATEGORY<select id="category"><option value="">all</option><option value="cook">cook</option><option value="explore">explore</option><option value="news">news</option></select></label>
+        <button class="btn">RUN QUERY</button>
+      </form>
+      <div id="suggest-context" class="source"></div>
+      <div id="suggestions" class="cards"></div>
+    </article>
+
+    <article class="panel span-7">
+      <div class="label">digest.must_know</div>
+      <h2>Verified priorities</h2>
+      <div id="must-know"></div>
+      <div class="source">Simulated reminders are excluded from this section.</div>
+    </article>
+    <article class="panel span-5">
+      <div class="label">connectors.status</div>
+      <div id="live-connectors"></div>
+    </article>
+
+  </section>
+</main>
+<script>
+  const esc = value => String(value ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const query = params => new URLSearchParams(Object.entries(params).filter(([,v])=>v!==''&&v!==undefined)).toString();
+
+  function renderSuggestions(data) {
+    document.querySelector('#suggest-context').textContent = `context: ${data.context.city} // location basis: ${data.context.coordinateBasis} // ${data.context.availableMinutes ?? 'any'} min // budget ${data.context.budget ?? 'any'}${data.constraintNotes?.length ? ' // '+data.constraintNotes.join(' // ') : ''}`;
+    document.querySelector('#suggestions').innerHTML = data.recommendations.length ? data.recommendations.map(item=>`<article class="card"><div class="card-head"><span>${esc(item.category)} // ${esc(item.provider)}</span><span>score ${item.score}</span></div><h3>${esc(item.title)}</h3><p>${esc(item.description)}</p><div class="why">${item.reasons.map(esc).join(' // ')}</div><a class="action" href="${esc(item.url)}" target="_blank" rel="noopener">OPEN SOURCE -&gt;</a></article>`).join('') : '<div class="empty">no provider results for this query</div>';
+  }
+
+  async function runSuggestions() {
+    const params = { area:document.querySelector('#area').value.trim(), minutes:document.querySelector('#minutes').value, budget:document.querySelector('#budget').value, categories:document.querySelector('#category').value };
+    document.querySelector('#suggestions').innerHTML='<div class="empty">querying live providers...</div>';
+    renderSuggestions(await fetch('/api/suggestions?'+query(params)).then(r=>r.json()));
+  }
+
+  async function loadBase() {
+    const [brief,digest,checklist] = await Promise.all([
+      fetch('/api/brief').then(r=>r.json()),
+      fetch('/api/digest').then(r=>r.json()),
+      fetch('/api/checklist').then(r=>r.json())
+    ]);
+    document.querySelector('#weather').innerHTML = brief.error ? `<div class="label">context.weather</div><span class="warn">${esc(brief.error)}</span>` : `<div class="label">context.weather // source: Open-Meteo</div><div class="weather-value">${Math.round(brief.weather.temperatureC)} C</div><h1>${esc(brief.weather.city)} // ${esc(brief.weather.condition)}</h1><p>${esc(brief.advice.join(' '))}</p><span class="source">observed ${esc(brief.weather.observedAt)} // rain risk ${brief.weather.precipitationProbability}%</span>`;
+    document.querySelector('#items').innerHTML = checklist.items.map(item=>`<li class="check-row"><label class="check-item"><input type="checkbox" data-check-item="${esc(item.name)}" ${item.confirmed?'checked':''}/><span>${esc(item.name)}</span></label><button class="remove-item" data-remove-item="${esc(item.name)}" title="Remove ${esc(item.name)}">x</button></li>`).join('');
+    document.querySelector('#items-source').textContent = 'source: USER PROFILE // storage: local';
+    document.querySelector('#items-progress').textContent = `today ${checklist.date} // confirmed ${checklist.completedCount}/${checklist.totalCount}${checklist.complete?' // READY TO LEAVE':''}`;
+    const must = digest.cards.filter(card=>card.section==='must_know' && card.id!=='weather-now');
+    document.querySelector('#must-know').innerHTML = must.length ? must.map(card=>`<div class="card"><div class="card-head"><span>${esc(card.id)}</span><span>rank ${card.score}</span></div><h3>${esc(card.title)}</h3><p>${esc(card.detail)}</p><div class="why">${card.reasons.map(esc).join(' // ')}</div></div>`).join('') : '<div class="empty">no additional verified alerts; weather is shown in context.weather above</div>';
+    const live = digest.providers.filter(p=>p.state==='live');
+    const connector = p=>`<div class="connector-row"><span>${esc(p.name)}</span><span class="${p.state==='live'?'real':'muted'}">${esc(p.state)}</span><span class="muted">${esc(p.detail)}</span></div>`;
+    document.querySelector('#live-connectors').innerHTML=live.map(connector).join('');
+  }
+
+  async function searchEventFeed() {
+    const keyword=document.querySelector('#event-keyword').value.trim();
+    const city=document.querySelector('#event-city').value.trim();
+    if(!keyword||!city)return;
+    const target=document.querySelector('#event-results');
+    target.innerHTML='<div class="empty">searching public event feeds...</div>';
+    const response=await fetch(`/api/events?keyword=${encodeURIComponent(keyword)}&city=${encodeURIComponent(city)}`);
+    const data=await response.json();
+    if(!response.ok||data.error)throw new Error(data.error||`server returned ${response.status}`);
+    const leads=data.results.map(item=>`<article class="card"><div class="card-head"><span>event lead // ${esc(item.source)}</span><span>LIVE</span></div><h3>${esc(item.title)}</h3><p>${esc(item.publishedAt||'publication time unavailable')}</p><div class="why">Public-feed lead // verify event date, venue and tickets at source</div><a class="action" href="${esc(item.url)}" target="_blank" rel="noopener">OPEN SOURCE -&gt;</a></article>`);
+    const links=data.externalSearches.map(item=>`<article class="card"><div class="card-head"><span>external search</span><span>${esc(item.provider)}</span></div><h3>Search ${esc(item.provider)} for ${esc(keyword)} in ${esc(city)}</h3><p>${esc(item.note)}</p><a class="action" href="${esc(item.url)}" target="_blank" rel="noopener">OPEN ${esc(item.provider).toUpperCase()} -&gt;</a></article>`);
+    target.innerHTML=[...leads,...links].join('')||'<div class="empty">no feed results; use one of the external searches</div>';
+  }
+
+  document.querySelector('#suggest-form').onsubmit=e=>{e.preventDefault();runSuggestions().catch(error=>document.querySelector('#suggestions').textContent=error.message)};
+  document.querySelector('#event-form').onsubmit=e=>{e.preventDefault();searchEventFeed().catch(error=>document.querySelector('#event-results').innerHTML=`<span class="warn">${esc(error.message)}</span>`)};
+  document.querySelector('#items').onchange=async event=>{
+    const input=event.target.closest('[data-check-item]'); if(!input)return;
+    await fetch('/api/checklist/item',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({item:input.dataset.checkItem,confirmed:input.checked})});
+    await loadBase();
+  };
+  document.querySelector('#items').onclick=async event=>{
+    const button=event.target.closest('[data-remove-item]'); if(!button)return;
+    await fetch('/api/profile/departure-items',{method:'DELETE',headers:{'content-type':'application/json'},body:JSON.stringify({item:button.dataset.removeItem})});
+    await loadBase();
+  };
+  document.querySelector('#add-item-form').onsubmit=async event=>{
+    event.preventDefault(); const input=document.querySelector('#new-item'); const item=input.value.trim(); if(!item)return;
+    const response=await fetch('/api/profile/departure-items',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({item})});
+    if(!response.ok){const error=await response.json();alert(error.error||'Could not add item');return;}
+    input.value=''; await loadBase();
+  };
+  Promise.all([loadBase(),runSuggestions()]).catch(error=>console.error(error));
+</script>
+</body>
+</html>

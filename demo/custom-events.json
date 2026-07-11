@@ -1,0 +1,36 @@
+[
+  {
+    "hoursAgo": 0.25,
+    "type": "item_seen",
+    "title": "Keys placed by the door",
+    "detail": "A custom demo sighting recorded at the home entrance.",
+    "confidence": 0.95,
+    "metadata": {
+      "item": "keys",
+      "place": "home entrance",
+      "method": "demo_manual"
+    }
+  },
+  {
+    "hoursAgo": 0.3,
+    "type": "place_seen",
+    "title": "Home entrance confirmed",
+    "detail": "A custom place signal supports the key sighting.",
+    "confidence": 0.9,
+    "metadata": {
+      "place": "home entrance",
+      "method": "demo_wifi"
+    }
+  },
+  {
+    "hoursAgo": 1,
+    "type": "reminder",
+    "title": "Take your ID",
+    "detail": "Triggered by the university departure routine.",
+    "confidence": 1,
+    "metadata": {
+      "trigger": "leaving_for_university",
+      "item": "id"
+    }
+  }
+]
