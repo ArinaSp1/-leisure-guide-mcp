@@ -20,15 +20,61 @@ interface ForecastResponse {
 }
 
 async function fetchJson<T>(url: URL): Promise<T> {
-  const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
+  const response = await fetch(url, {
+    headers: { "user-agent": "Leisure-Guide-MCP/0.7" },
+    signal: AbortSignal.timeout(15000),
+  });
   if (!response.ok) throw new Error(`Weather service returned ${response.status}`);
   return (await response.json()) as T;
+}
+
+interface WttrResponse {
+  nearest_area?: Array<{ areaName?: Array<{ value: string }>; latitude?: string; longitude?: string }>;
+  current_condition?: Array<{
+    temp_C: string; FeelsLikeC: string; precipMM: string; weatherCode: string;
+    windspeedKmph: string; localObsDateTime?: string;
+  }>;
+  weather?: Array<{ hourly?: Array<{ chanceofrain?: string }> }>;
+}
+
+function wttrToWmo(code: number): number {
+  if (code === 113) return 0;
+  if (code === 116) return 2;
+  if ([119, 122].includes(code)) return 3;
+  if ([143, 248, 260].includes(code)) return 45;
+  if ([179, 182, 185, 227, 230, 281, 284, 311, 314, 317, 320, 323, 326, 329, 332, 335, 338, 350, 362, 365, 368, 371, 374, 377].includes(code)) return 71;
+  if ([176, 263, 266, 293, 296, 299, 302, 305, 308, 353, 356, 359].includes(code)) return 61;
+  if ([200, 386, 389, 392, 395].includes(code)) return 95;
+  return 3;
+}
+
+async function getWttrWeather(city: string): Promise<WeatherSnapshot> {
+  const url = new URL(`https://wttr.in/${encodeURIComponent(city)}`);
+  url.searchParams.set("format", "j1");
+  const data = await fetchJson<WttrResponse>(url);
+  const current = data.current_condition?.[0];
+  if (!current) throw new Error(`Could not retrieve weather for ${city}`);
+  const area = data.nearest_area?.[0];
+  const rain = data.weather?.[0]?.hourly?.slice(0, 3).map((hour) => Number(hour.chanceofrain ?? 0)) ?? [0];
+  return {
+    city: area?.areaName?.[0]?.value || city,
+    latitude: Number(area?.latitude ?? 0),
+    longitude: Number(area?.longitude ?? 0),
+    temperatureC: Number(current.temp_C),
+    apparentTemperatureC: Number(current.FeelsLikeC),
+    precipitationMm: Number(current.precipMM),
+    precipitationProbability: Math.max(0, ...rain),
+    windKph: Number(current.windspeedKmph),
+    weatherCode: wttrToWmo(Number(current.weatherCode)),
+    observedAt: current.localObsDateTime || new Date().toISOString(),
+  };
 }
 
 export async function getWeather(
   city: string,
   countryCode?: string,
 ): Promise<WeatherSnapshot> {
+  try {
   const geocodingUrl = new URL("https://geocoding-api.open-meteo.com/v1/search");
   geocodingUrl.searchParams.set("name", city);
   geocodingUrl.searchParams.set("count", "1");
@@ -70,4 +116,7 @@ export async function getWeather(
     weatherCode: forecast.current.weather_code,
     observedAt: forecast.current.time,
   };
+  } catch {
+    return getWttrWeather(city);
+  }
 }

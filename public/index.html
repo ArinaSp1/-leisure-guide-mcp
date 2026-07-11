@@ -152,11 +152,12 @@
     document.querySelector('#items').innerHTML = checklist.items.map(item=>`<li class="check-row"><label class="check-item"><input type="checkbox" data-check-item="${esc(item.name)}" ${item.confirmed?'checked':''}/><span>${esc(item.name)}</span></label><button class="remove-item" data-remove-item="${esc(item.name)}" title="Remove ${esc(item.name)}">x</button></li>`).join('');
     document.querySelector('#items-source').textContent = 'source: USER PROFILE // storage: local';
     document.querySelector('#items-progress').textContent = `today ${checklist.date} // confirmed ${checklist.completedCount}/${checklist.totalCount}${checklist.complete?' // READY TO LEAVE':''}`;
-    const must = digest.cards.filter(card=>card.section==='must_know' && card.id!=='weather-now');
+    const cards = Array.isArray(digest.cards) ? digest.cards : [];
+    const must = cards.filter(card=>card.section==='must_know' && card.id!=='weather-now');
     document.querySelector('#must-know').innerHTML = must.length ? must.map(card=>`<div class="card"><div class="card-head"><span>${esc(card.id)}</span><span>rank ${card.score}</span></div><h3>${esc(card.title)}</h3><p>${esc(card.detail)}</p><div class="why">${card.reasons.map(esc).join(' // ')}</div></div>`).join('') : '<div class="empty">no additional verified alerts; weather is shown in context.weather above</div>';
-    const live = digest.providers.filter(p=>p.state==='live');
+    const live = Array.isArray(digest.providers) ? digest.providers.filter(p=>p.state==='live') : [];
     const connector = p=>`<div class="connector-row"><span>${esc(p.name)}</span><span class="${p.state==='live'?'real':'muted'}">${esc(p.state)}</span><span class="muted">${esc(p.detail)}</span></div>`;
-    document.querySelector('#live-connectors').innerHTML=live.map(connector).join('');
+    document.querySelector('#live-connectors').innerHTML=live.length ? live.map(connector).join('') : `<div class="empty">${esc(digest.error || 'connector status unavailable')}</div>`;
   }
 
   async function searchEventFeed() {
