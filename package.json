@@ -1,0 +1,28 @@
+{
+  "name": "leisure-guide-mcp",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "An API-driven leisure and daily-context guide exposed through MCP.",
+  "scripts": {
+    "dev": "tsx src/dashboard.ts",
+    "mcp": "tsx src/mcp.ts",
+    "build": "tsc",
+    "start": "node dist/dashboard.js",
+    "start:mcp": "node dist/mcp.js",
+    "test": "tsx --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "active-win": "^9.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=20 <25"
+  }
+}
