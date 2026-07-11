@@ -3,7 +3,7 @@ services:
     name: leisure-guide-mcp
     runtime: node
     plan: free
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --ignore-scripts && pnpm build
     startCommand: pnpm start
     healthCheckPath: /health
     envVars:
