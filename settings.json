@@ -1,0 +1,23 @@
+{
+  "city": "Berlin",
+  "countryCode": "DE",
+  "breakReminderMinutes": 50,
+  "departureItems": [
+    "keys",
+    "phone",
+    "card",
+    "headphones",
+    "charger",
+    "ID",
+    "ticket"
+  ],
+  "interests": [
+    "artificial intelligence",
+    "technology",
+    "science",
+    "Berlin",
+    "music"
+  ],
+  "demoMode": true,
+  "activityTracking": true
+}

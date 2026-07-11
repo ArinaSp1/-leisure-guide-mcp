@@ -1,0 +1,7 @@
+{
+  "weather": { "enabled": true, "type": "open-meteo" },
+  "news": { "enabled": true, "type": "rss" },
+  "recipes": { "enabled": true, "type": "themealdb", "apiKey": "1" },
+  "discoveries": { "enabled": true, "type": "wikimedia", "language": "en", "radiusMetres": 10000 }
+  ,"events": { "enabled": true, "type": "public-rss-plus-external-search" }
+}
